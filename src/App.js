@@ -1,41 +1,51 @@
-import React, {useState} from "react";
-import Board from "./Component/Board";
-import { calculateWinner } from "./helpers";
-import './Styles/root.scss'
+import React, { useState } from 'react';
+import Board from './Component/Board';
+import History from './Component/History';
+import StatusMessage from './Component/StatusMessage';
+import { calculateWinner } from './helpers';
+import './Styles/root.scss';
 
 const App = () => {
+  const [history, setHistory] = useState([
+    { board: Array(9).fill(null), isXNext: true },
+  ]);
+  const [currentMove, setCurrentMove] = useState(0);
+  const current = history[currentMove];
 
-  const [ board, setboard ] = useState(Array(9).fill(null));
-  const [ isXNext, setIsXNext ] = useState(false)
+  const winner = calculateWinner(current.board);
 
-  const winner = calculateWinner(board)
 
-  const message = winner ? `Winner is ${winner}` : `Next Player is ${isXNext ? 'X' : 'O'}`;
-
-  const handleSquareClick = (positon) => {
-
-    if (board[ positon ] || winner) {
+  const handleSquareClick = position => {
+    if (current.board[position] || winner) {
       return;
     }
 
-    setboard(prev => {
-      return prev.map((square, pos) => {
-        if (pos === positon) {
-          return isXNext ? "X" : 'O';
+    setHistory(prev => {
+      const last = prev[prev.length - 1];
+
+      const newboard = last.board.map((square, pos) => {
+        if (pos === position) {
+          return last.isXNext ? 'X' : 'O';
         }
         return square;
       });
+      return prev.concat({ board: newboard, isXNext: !last.isXNext });
     });
-    setIsXNext((prev) => !prev);
+    setCurrentMove(prev => prev + 1);
+  };
+
+  const moveTo = move => {
+    setCurrentMove(move);
   };
 
   return (
     <div className="app">
       <h1>Tic Tac Toe</h1>
-      <h2>{message}</h2>
-      <Board board={board} handleSquareClick={handleSquareClick} />
+      <StatusMessage winner={winner} current={current}/>
+      <Board board={current.board} handleSquareClick={handleSquareClick} />
+      <History history={history} moveTo={moveTo} currentMove={currentMove} />
     </div>
   );
-}
+};
 
 export default App;
