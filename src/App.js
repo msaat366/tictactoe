@@ -1,9 +1,10 @@
 import React from "react";
 import Board from "./Component/Board";
+import './Styles/root.scss'
 
 const App = () => {
   return (
-    <div>
+    <div className="app">
       <h1>Tic Tac Toe</h1>
       <Board/>
     </div>
